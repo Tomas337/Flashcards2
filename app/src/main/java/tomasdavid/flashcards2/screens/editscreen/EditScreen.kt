@@ -1,7 +1,8 @@
-package tomasdavid.flashcards2.screens
+package tomasdavid.flashcards2.screens.editscreen
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
@@ -31,6 +32,9 @@ import tomasdavid.flashcards2.navigation.Screen
 fun EditScreen(navController: NavController) {
     val scrollBehavior = pinnedScrollBehavior()
     var showMenu by remember { mutableStateOf(false) }
+    var cardsExpanded by remember { mutableStateOf(false) }
+    var displayOrderExpanded by remember { mutableStateOf(false) }
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -80,6 +84,19 @@ fun EditScreen(navController: NavController) {
             )
         },
     ) { innerPadding ->
-
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            displayOrder(
+                expanded = displayOrderExpanded,
+                onToggle = { displayOrderExpanded = !displayOrderExpanded }
+            )
+            cards(
+                expanded = cardsExpanded,
+                onToggle = { cardsExpanded = !cardsExpanded}
+            )
+        }
     }
 }

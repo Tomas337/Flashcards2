@@ -6,7 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.NavHost
 import tomasdavid.flashcards2.screens.CardsScreen
-import tomasdavid.flashcards2.screens.EditScreen
+import tomasdavid.flashcards2.screens.editscreen.EditScreen
 import tomasdavid.flashcards2.screens.MainScreen
 
 @Composable

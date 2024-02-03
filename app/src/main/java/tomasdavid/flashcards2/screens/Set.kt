@@ -1,4 +1,4 @@
-package tomasdavid.flashcards2
+package tomasdavid.flashcards2.screens
 
 class Card(
     val text1: String,
