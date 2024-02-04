@@ -32,8 +32,13 @@ import tomasdavid.flashcards2.navigation.Screen
 fun EditScreen(navController: NavController) {
     val scrollBehavior = pinnedScrollBehavior()
     var showMenu by remember { mutableStateOf(false) }
-    var cardsExpanded by remember { mutableStateOf(false) }
     var displayOrderExpanded by remember { mutableStateOf(false) }
+    var cardsExpanded by remember { mutableStateOf(false) }
+
+    // TODO add state flow
+    // cardItem.onClick -> if expandedItemId is null -> expandedItemId = cardItemId
+    // else if expandedItemId != cardItemId -> expandedItemId = null, handle when clicking outside expandedItem
+    var expandedItemId by remember { mutableStateOf<Int?>(null) }
 
     Scaffold(
         modifier = Modifier
@@ -95,7 +100,9 @@ fun EditScreen(navController: NavController) {
             )
             cards(
                 expanded = cardsExpanded,
-                onToggle = { cardsExpanded = !cardsExpanded}
+                expandToggle = { cardsExpanded = !cardsExpanded},
+                expandedItemId = expandedItemId,
+                setExpandedItemId = {itemId: Int? -> expandedItemId = itemId}
             )
         }
     }
