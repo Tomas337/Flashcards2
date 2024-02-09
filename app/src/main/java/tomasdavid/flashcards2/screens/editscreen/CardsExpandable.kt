@@ -10,18 +10,16 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 
-fun LazyListScope.cards(
+fun LazyListScope.cardsExpandable(
     expanded: Boolean,
     expandToggle: () -> Unit,
     expandedItemId: Int?,
-    setExpandedItemId: (Int?) -> Unit
+    setExpandedItemId: (Int?) -> Unit,
+    setExpandedItemPosition: (Position?) -> Unit
 ) {
     item {
         Row(
@@ -48,7 +46,8 @@ fun LazyListScope.cards(
             CardItem(
                 cardId = index,
                 expandedItemId = expandedItemId,
-                setExpandedItemId = setExpandedItemId
+                setExpandedItemId = setExpandedItemId,
+                setExpandedItemPosition = setExpandedItemPosition
             )
         }
     }

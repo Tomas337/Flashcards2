@@ -1,5 +1,11 @@
 package tomasdavid.flashcards2.screens.editscreen
 
+import android.util.Log
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,9 +29,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.round
 import androidx.navigation.NavController
 import tomasdavid.flashcards2.navigation.Screen
+import kotlin.math.round
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,14 +47,30 @@ fun EditScreen(navController: NavController) {
     var cardsExpanded by remember { mutableStateOf(false) }
 
     // TODO add state flow
-    // cardItem.onClick -> if expandedItemId is null -> expandedItemId = cardItemId
-    // else if expandedItemId != cardItemId -> expandedItemId = null, handle when clicking outside expandedItem
     var expandedItemId by remember { mutableStateOf<Int?>(null) }
+    var expandedItemPosition by remember { mutableStateOf<Position?>(null) }
 
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .nestedScroll(scrollBehavior.nestedScrollConnection),
+            .nestedScroll(scrollBehavior.nestedScrollConnection)
+            .pointerInput(Unit) {
+                awaitPointerEventScope {
+                    while (true) {
+                        val down = awaitFirstDown(pass = PointerEventPass.Initial)
+                        val event = awaitPointerEvent(pass = PointerEventPass.Initial)
+
+                        val offset = event.changes[0].position
+
+                        if (expandedItemId != null && !clickedOnExpandedItem(offset, expandedItemPosition)) {
+                            expandedItemId = null
+                            expandedItemPosition = null
+                            down.consume()
+                            event.changes[0].consume()
+                        }
+                    }
+                }
+            },
         topBar = {
             TopAppBar(
                 title = {
@@ -94,16 +121,27 @@ fun EditScreen(navController: NavController) {
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            displayOrder(
+            displayOrderExpandable(
                 expanded = displayOrderExpanded,
                 onToggle = { displayOrderExpanded = !displayOrderExpanded }
             )
-            cards(
+            cardsExpandable(
                 expanded = cardsExpanded,
-                expandToggle = { cardsExpanded = !cardsExpanded},
+                expandToggle = { cardsExpanded = !cardsExpanded },
                 expandedItemId = expandedItemId,
-                setExpandedItemId = {itemId: Int? -> expandedItemId = itemId}
+                setExpandedItemId = { itemId: Int? -> expandedItemId = itemId },
+                setExpandedItemPosition = { itemPosition: Position? ->
+                    expandedItemPosition = itemPosition
+                }
             )
         }
     }
+}
+
+fun clickedOnExpandedItem(offset: Offset, position: Position?): Boolean {
+    if (position == null) {
+        return false
+    }
+    return (offset.round().x in position.x..(position.x + position.width) &&
+            offset.round().y in position.y..(position.y + position.height))
 }

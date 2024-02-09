@@ -29,6 +29,7 @@ import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 
@@ -36,15 +37,15 @@ import coil.compose.AsyncImage
 fun CardItem(
     cardId: Int,
     expandedItemId: Int?,
-    setExpandedItemId: (Int?) -> Unit
+    setExpandedItemId: (Int?) -> Unit,
+    setExpandedItemPosition: (Position?) -> Unit
 ) {
-    val inEditMode = cardId == expandedItemId
+    val inEditMode = (cardId == expandedItemId)
 
     val cardItemHeight = 70.dp
     val textSize = 20.sp
 
-    var size by remember { mutableStateOf(IntSize.Zero) }
-    var position by remember { mutableStateOf(Offset.Zero) }
+    var position by remember { mutableStateOf<Position?>(null) }
 
     // TODO delete on swipe
     // TODO increase size in edit mode
@@ -52,33 +53,22 @@ fun CardItem(
     Box(
         modifier = Modifier
             .onGloballyPositioned { coordinates ->
-                size = coordinates.size
-                position = coordinates.positionInRoot()
+                position = Position(
+                    height = coordinates.size.height,
+                    width = coordinates.size.width,
+                    x = coordinates.positionInRoot().round().x,
+                    y = coordinates.positionInRoot().round().y
+                )
             }
-            // only works when clicking on CardItem, should be able to click anywhere
             .clickable(
+                enabled = (expandedItemId == null),
                 onClick = {
                     if (expandedItemId == null) {
                         setExpandedItemId(cardId)
-                    } else if (expandedItemId != cardId) {
-                        setExpandedItemId(null)
+                        setExpandedItemPosition(position)
                     }
-                },
+                }
             )
-        // always sets ExpandedId to null because tap gesture is detected by all items
-        // TODO tap gesture for the whole screen
-
-//            .pointerInput(Unit) {
-//                detectTapGestures { offset ->
-//                    Log.i("id", "$expandedItemId, $cardId")
-//                    if (expandedItemId == null) {
-//                        setExpandedItemId(cardId)
-//                    } else if (expandedItemId != cardId) {
-//                        setExpandedItemId(null)
-//                    }
-//
-//                }
-//            }
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
