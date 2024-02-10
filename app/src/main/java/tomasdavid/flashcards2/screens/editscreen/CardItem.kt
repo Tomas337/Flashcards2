@@ -7,12 +7,20 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,12 +28,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -33,6 +45,7 @@ import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CardItem(
     cardId: Int,
@@ -42,39 +55,60 @@ fun CardItem(
 ) {
     val inEditMode = (cardId == expandedItemId)
 
-    val cardItemHeight = 70.dp
-    val textSize = 20.sp
+    val cardItemHeight = if (!inEditMode) {
+        70.dp
+    } else {
+        150.dp
+    }
+    val textSize = if (!inEditMode) {
+        20.sp
+    } else {
+        25.sp
+    }
+    val padding = if (!inEditMode) {
+        10.dp
+    } else {
+        15.dp
+    }
 
     var position by remember { mutableStateOf<Position?>(null) }
+    
+    var text1 by remember { mutableStateOf("Text1") }
+    var text2 by remember { mutableStateOf("Text2") }
 
     // TODO delete on swipe
-    // TODO increase size in edit mode
-    // TODO exit edit mode by clicking outside
     Box(
         modifier = Modifier
             .onGloballyPositioned { coordinates ->
+                Log.i("positioned", "positioned")
                 position = Position(
                     height = coordinates.size.height,
                     width = coordinates.size.width,
-                    x = coordinates.positionInRoot().round().x,
-                    y = coordinates.positionInRoot().round().y
+                    x = coordinates
+                        .positionInRoot()
+                        .round().x,
+                    y = coordinates
+                        .positionInRoot()
+                        .round().y
                 )
+                if (inEditMode) {  // update position state on box expansion
+                    setExpandedItemPosition(position)
+                }
             }
             .clickable(
-                enabled = (expandedItemId == null),
-                onClick = {
-                    if (expandedItemId == null) {
-                        setExpandedItemId(cardId)
-                        setExpandedItemPosition(position)
-                    }
+                enabled = (expandedItemId == null)
+            ) {
+                if (expandedItemId == null) {
+                    setExpandedItemId(cardId)
+                    setExpandedItemPosition(position)
                 }
-            )
+            }
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp)
+                .padding(padding)
         ) {
             AsyncImage(
                 model = "file:///android_asset/no-image.1024x1024.png",
@@ -92,28 +126,78 @@ fun CardItem(
                 modifier = Modifier
                     .height(cardItemHeight)
                     .fillMaxWidth()
-                    .padding(horizontal = 10.dp)
+                    .padding(horizontal = padding)
             ) {
-                Text(
-                    text = "Text1",
-                    fontSize = textSize,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                )
-                Divider()
-                Text(
-                    text = "Text2",
-                    fontSize = textSize,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                )
+                if (!inEditMode) {
+                    Text(
+                        text = text1,
+                        fontSize = textSize,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                    Divider()
+                    Text(
+                        text = text2,
+                        fontSize = textSize,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                } else {
+                    OutlinedTextField(
+                        value = text1,
+                        onValueChange = { text1 = it },
+                        textStyle = LocalTextStyle.current.copy(
+                            textAlign = TextAlign.Center,
+                            fontSize = textSize
+                        ),
+                        modifier = Modifier
+                            .clickable(enabled = true) {}
+                            .fillMaxWidth(),
+//                        placeholder = {
+//                            Text(
+//                                text = "Text1",
+//                                textAlign = TextAlign.Center,
+//                                fontSize = textSize,
+//                                modifier = Modifier
+//                                    .fillMaxWidth()
+//                            )
+//                        },
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            unfocusedBorderColor = Color.Transparent,
+                            focusedBorderColor = Color.Transparent,
+                        ),
+                        singleLine = true
+                    )
+                    Divider()
+                    OutlinedTextField(
+                        value = text2,
+                        onValueChange = { text2 = it },
+                        textStyle = LocalTextStyle.current.copy(
+                            textAlign = TextAlign.Center,
+                            fontSize = textSize
+                        ),
+                        modifier = Modifier
+                            .clickable(enabled = true) {}
+                            .fillMaxWidth(),
+//                        placeholder = {
+//                            Text(
+//                                text = "Text2",
+//                                textAlign = TextAlign.Center,
+//                                fontSize = textSize,
+//                                modifier = Modifier
+//                                    .fillMaxWidth()
+//                            )
+//                        },
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            unfocusedBorderColor = Color.Transparent,
+                            focusedBorderColor = Color.Transparent,
+                        ),
+                        singleLine = true
+                    )
+                }
             }
         }
-        if (inEditMode) {
-            Text("Delete")
-        }
-
     }
 }

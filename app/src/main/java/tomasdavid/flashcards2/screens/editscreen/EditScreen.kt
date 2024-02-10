@@ -6,7 +6,10 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -28,17 +31,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.round
 import androidx.navigation.NavController
 import tomasdavid.flashcards2.navigation.Screen
 import kotlin.math.round
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class,
+    ExperimentalLayoutApi::class
+)
 @Composable
 fun EditScreen(navController: NavController) {
     val scrollBehavior = pinnedScrollBehavior()
@@ -46,9 +54,11 @@ fun EditScreen(navController: NavController) {
     var displayOrderExpanded by remember { mutableStateOf(false) }
     var cardsExpanded by remember { mutableStateOf(false) }
 
-    // TODO add state flow
     var expandedItemId by remember { mutableStateOf<Int?>(null) }
     var expandedItemPosition by remember { mutableStateOf<Position?>(null) }
+
+//    val keyboardController = LocalSoftwareKeyboardController.current
+//    val focusManager = LocalFocusManager.current
 
     Scaffold(
         modifier = Modifier
@@ -62,6 +72,10 @@ fun EditScreen(navController: NavController) {
 
                         val offset = event.changes[0].position
 
+//                        if (WindowInsets.isImeVisible) {
+//                            keyboardController?.hide()
+//                            focusManager.clearFocus(true)
+//                        } else
                         if (expandedItemId != null && !clickedOnExpandedItem(offset, expandedItemPosition)) {
                             expandedItemId = null
                             expandedItemPosition = null
