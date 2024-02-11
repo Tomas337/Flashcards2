@@ -37,6 +37,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
@@ -76,11 +77,12 @@ fun CardItem(
     var text1 by remember { mutableStateOf("Text1") }
     var text2 by remember { mutableStateOf("Text2") }
 
+    val focusManager = LocalFocusManager.current
+
     // TODO delete on swipe
     Box(
         modifier = Modifier
             .onGloballyPositioned { coordinates ->
-                Log.i("positioned", "positioned")
                 position = Position(
                     height = coordinates.size.height,
                     width = coordinates.size.width,
@@ -168,6 +170,10 @@ fun CardItem(
                             unfocusedBorderColor = Color.Transparent,
                             focusedBorderColor = Color.Transparent,
                         ),
+                        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(
+                            onDone = { focusManager.clearFocus() }
+                        ),
                         singleLine = true
                     )
                     Divider()
@@ -193,6 +199,10 @@ fun CardItem(
                         colors = TextFieldDefaults.outlinedTextFieldColors(
                             unfocusedBorderColor = Color.Transparent,
                             focusedBorderColor = Color.Transparent,
+                        ),
+                        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(
+                            onDone = { focusManager.clearFocus() }
                         ),
                         singleLine = true
                     )

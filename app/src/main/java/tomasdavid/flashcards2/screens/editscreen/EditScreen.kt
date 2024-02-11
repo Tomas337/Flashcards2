@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
@@ -57,9 +58,6 @@ fun EditScreen(navController: NavController) {
     var expandedItemId by remember { mutableStateOf<Int?>(null) }
     var expandedItemPosition by remember { mutableStateOf<Position?>(null) }
 
-//    val keyboardController = LocalSoftwareKeyboardController.current
-//    val focusManager = LocalFocusManager.current
-
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -68,15 +66,20 @@ fun EditScreen(navController: NavController) {
                 awaitPointerEventScope {
                     while (true) {
                         val down = awaitFirstDown(pass = PointerEventPass.Initial)
+                        val downTime = System.currentTimeMillis()
+                        val downPosition = down.position
+
                         val event = awaitPointerEvent(pass = PointerEventPass.Initial)
+                        val upTime = System.currentTimeMillis()
+
+                        val tapTimeout = viewConfiguration.longPressTimeoutMillis
 
                         val offset = event.changes[0].position
+                        val isTap = upTime - downTime < tapTimeout &&
+                                event.changes.size == 1 &&
+                                (offset - downPosition).getDistance() < viewConfiguration.touchSlop
 
-//                        if (WindowInsets.isImeVisible) {
-//                            keyboardController?.hide()
-//                            focusManager.clearFocus(true)
-//                        } else
-                        if (expandedItemId != null && !clickedOnExpandedItem(offset, expandedItemPosition)) {
+                        if (isTap && expandedItemId != null && !clickedOnExpandedItem(offset, expandedItemPosition)) {
                             expandedItemId = null
                             expandedItemPosition = null
                             down.consume()
