@@ -1,4 +1,4 @@
-package tomasdavid.flashcards2.screens
+package tomasdavid.flashcards2.ui.screens
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding

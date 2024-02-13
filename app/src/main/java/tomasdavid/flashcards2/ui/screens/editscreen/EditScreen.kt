@@ -1,4 +1,4 @@
-package tomasdavid.flashcards2.screens.editscreen
+package tomasdavid.flashcards2.ui.screens.editscreen
 
 import android.util.Log
 import androidx.compose.foundation.clickable

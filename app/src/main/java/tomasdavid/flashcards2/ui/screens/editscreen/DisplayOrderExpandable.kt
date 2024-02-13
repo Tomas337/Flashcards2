@@ -1,4 +1,4 @@
-package tomasdavid.flashcards2.screens.editscreen
+package tomasdavid.flashcards2.ui.screens.editscreen
 
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.Text

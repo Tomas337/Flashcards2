@@ -5,9 +5,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.NavHost
-import tomasdavid.flashcards2.screens.CardsScreen
-import tomasdavid.flashcards2.screens.editscreen.EditScreen
-import tomasdavid.flashcards2.screens.MainScreen
+import tomasdavid.flashcards2.ui.screens.CardsScreen
+import tomasdavid.flashcards2.ui.screens.editscreen.EditScreen
+import tomasdavid.flashcards2.ui.screens.MainScreen
 
 @Composable
 fun AppNavHost(

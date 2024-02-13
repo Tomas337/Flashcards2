@@ -1,4 +1,4 @@
-package tomasdavid.flashcards2.screens.editscreen
+package tomasdavid.flashcards2.ui.screens.editscreen
 
 import android.util.Log
 import androidx.compose.foundation.clickable
@@ -147,6 +147,7 @@ fun CardItem(
                             .fillMaxWidth()
                     )
                 } else {
+                    // TODO switch to BasicTextField to style padding
                     OutlinedTextField(
                         value = text1,
                         onValueChange = { text1 = it },
@@ -157,15 +158,6 @@ fun CardItem(
                         modifier = Modifier
                             .clickable(enabled = true) {}
                             .fillMaxWidth(),
-//                        placeholder = {
-//                            Text(
-//                                text = "Text1",
-//                                textAlign = TextAlign.Center,
-//                                fontSize = textSize,
-//                                modifier = Modifier
-//                                    .fillMaxWidth()
-//                            )
-//                        },
                         colors = TextFieldDefaults.outlinedTextFieldColors(
                             unfocusedBorderColor = Color.Transparent,
                             focusedBorderColor = Color.Transparent,
@@ -187,15 +179,6 @@ fun CardItem(
                         modifier = Modifier
                             .clickable(enabled = true) {}
                             .fillMaxWidth(),
-//                        placeholder = {
-//                            Text(
-//                                text = "Text2",
-//                                textAlign = TextAlign.Center,
-//                                fontSize = textSize,
-//                                modifier = Modifier
-//                                    .fillMaxWidth()
-//                            )
-//                        },
                         colors = TextFieldDefaults.outlinedTextFieldColors(
                             unfocusedBorderColor = Color.Transparent,
                             focusedBorderColor = Color.Transparent,

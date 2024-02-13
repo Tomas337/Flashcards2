@@ -1,4 +1,4 @@
-package tomasdavid.flashcards2.screens.editscreen
+package tomasdavid.flashcards2.ui.screens.editscreen
 
 data class Position(
     val width: Int,

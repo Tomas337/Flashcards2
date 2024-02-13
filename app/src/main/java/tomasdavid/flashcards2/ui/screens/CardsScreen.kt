@@ -1,4 +1,4 @@
-package tomasdavid.flashcards2.screens
+package tomasdavid.flashcards2.ui.screens
 
 import androidx.navigation.NavController
 
