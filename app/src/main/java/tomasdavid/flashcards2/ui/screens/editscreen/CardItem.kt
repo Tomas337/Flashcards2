@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import tomasdavid.flashcards2.ui.screens.Card
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,10 +53,10 @@ fun CardItem(
     cardId: Int,
     expandedItemId: Int?,
     setExpandedItemId: (Int?) -> Unit,
-    setExpandedItemPosition: (Position?) -> Unit
+    setExpandedItemPosition: (Position?) -> Unit,
+    inEditMode: Boolean = (cardId == expandedItemId),
+    updateCard: (Card) -> Unit
 ) {
-    val inEditMode = (cardId == expandedItemId)
-
     val cardItemHeight = if (!inEditMode) {
         70.dp
     } else {
@@ -98,7 +99,7 @@ fun CardItem(
                 }
             }
             .clickable(
-                enabled = (expandedItemId == null)
+                enabled = (expandedItemId == null),
             ) {
                 if (expandedItemId == null) {
                     setExpandedItemId(cardId)

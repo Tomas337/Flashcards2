@@ -14,16 +14,22 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import kotlinx.coroutines.launch
 import tomasdavid.flashcards2.navigation.Screen
+import tomasdavid.flashcards2.viewmodels.SetViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(navController: NavController) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-//    var sets by remember { mutableStateListOf<Set>() }  // TODO save instance state, (or use local database?!)
+    val scope = rememberCoroutineScope()
+    val setViewModel: SetViewModel = hiltViewModel()
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -42,7 +48,9 @@ fun MainScreen(navController: NavController) {
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navController.navigate(Screen.EDIT.name) },
+                onClick = {
+                    navController.navigate(Screen.EDIT.name)
+                },
                 containerColor = MaterialTheme.colorScheme.secondary,
                 contentColor = MaterialTheme.colorScheme.onSecondary
             ) {
@@ -50,14 +58,16 @@ fun MainScreen(navController: NavController) {
             }
         }
     ) { innerPadding ->
-        // TODO display sets
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            items(100) {
-                Text(text="$it")
+            scope.launch {
+                val sets = setViewModel.getAllSets()
+                items(sets.size) {
+                    Text(text=sets[it].setName)
+                }
             }
         }
     }
