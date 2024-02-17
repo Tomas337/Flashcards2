@@ -2,9 +2,11 @@ package tomasdavid.flashcards2.data
 
 import android.app.Application
 import android.content.Context
+import android.util.Log
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -12,6 +14,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.HiltAndroidApp
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Provider
 import javax.inject.Singleton
 
 @Database(entities = [SetEntity::class], version = 1)
@@ -27,13 +30,13 @@ class MyApp : Application()
 object AppModule {
     @Singleton
     @Provides
-    fun provideDatabase(
-        @ApplicationContext app: Context
-    ) = Room.databaseBuilder(
-        app,
-        SetDatabase::class.java,
-        "set.db"
-    ).build()
+    fun provideDatabase(@ApplicationContext app: Context) = Room
+        .databaseBuilder(
+            app,
+            SetDatabase::class.java,
+            "set.db"
+        )
+        .build()
 
     @Singleton
     @Provides

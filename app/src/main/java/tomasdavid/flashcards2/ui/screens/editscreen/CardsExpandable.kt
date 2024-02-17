@@ -41,8 +41,8 @@ fun LazyListScope.cardsExpandable(
     expandedItemId: Int?,
     setExpandedItemId: (Int?) -> Unit,
     setExpandedItemPosition: (Position?) -> Unit,
-    setViewModel: SetViewModel,
-    scope: CoroutineScope
+    set: Set,
+    addCard: (Card) -> Unit
 ) {
     item {
         Row(
@@ -86,27 +86,26 @@ fun LazyListScope.cardsExpandable(
             }
             Divider()
 
-//            if (isAddingCard) {
-//                // TODO set id to length of cards of set
-//                setExpandedItemId(-1)
-//                // TODO curCardState state in editScreen
-//                // TODO on click outside item update db if changed
-//                var newCard by remember { mutableStateOf(Card()) }
-//
-//                CardItem(
-//                    cardId = -1,
-//                    expandedItemId = -1,
-//                    setExpandedItemId = setExpandedItemId,
-//                    setExpandedItemPosition = setExpandedItemPosition,
-//                    inEditMode = true,
-//                    updateCard = { card: Card -> newCard = card }
-//                )
-//                Spacer(modifier = Modifier.height(10.dp))
-//            }
+            if (isAddingCard) {
+                // TODO on click outside display dialog to save (add) card
+                setExpandedItemId(-1)
+                var newCard by remember { mutableStateOf(Card()) }
+
+                CardItem(
+                    cardId = -1,
+                    expandedItemId = -1,
+                    setExpandedItemId = setExpandedItemId,
+                    setExpandedItemPosition = setExpandedItemPosition,
+                    inEditMode = true,
+                    updateCard = { card: Card -> newCard = card }
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+            }
         }
-        items(10) {index ->
+        items(set.cards.size) {index ->
             CardItem(
-                cardId = index,
+                cardId = set.cards[index].id,
                 expandedItemId = expandedItemId,
                 setExpandedItemId = setExpandedItemId,
                 setExpandedItemPosition = setExpandedItemPosition,

@@ -1,6 +1,8 @@
 package tomasdavid.flashcards2.data
 
 import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
 
@@ -12,8 +14,8 @@ interface SetDao {
     @Query("SELECT * FROM sets WHERE id == :id")
     fun getSet(id: Int): SetEntity
 
-    @Upsert
-    fun upsertSet(setEntity: SetEntity)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun upsertSet(setEntity: SetEntity): Long
 
     @Query("DELETE FROM sets WHERE id == :id")
     fun deleteSet(id: Int)

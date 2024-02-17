@@ -13,8 +13,8 @@ class SetRepository @Inject constructor(
         return setDao.getSet(id)
     }
 
-    fun upsertSet(setEntity: SetEntity) {
-        setDao.upsertSet(setEntity)
+    fun upsertSet(setEntity: SetEntity): Long {
+        return setDao.upsertSet(setEntity)
     }
 
     fun deleteSet(id: Int) {

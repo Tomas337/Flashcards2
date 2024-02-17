@@ -1,5 +1,6 @@
 package tomasdavid.flashcards2.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -30,9 +31,10 @@ class SetViewModel @Inject constructor(
         setEntityToSet(setEntity)
     }
 
-    suspend fun upsertSet(set: Set) = withContext(Dispatchers.IO) {
+    suspend fun upsertSet(set: Set): Int = withContext(Dispatchers.IO) {
         val setEntity = setToSetEntity(set)
-        setRepository.upsertSet(setEntity)
+        // loss of precision, but realistically nobody would have so many sets
+        setRepository.upsertSet(setEntity).toInt()
     }
 
     suspend fun deleteSet(set: Set) = withContext(Dispatchers.IO) {
