@@ -1,5 +1,6 @@
 package tomasdavid.flashcards2.ui.screens.editscreen
 
+import android.util.Log
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -51,116 +52,134 @@ fun EditScreen(
     var displayOrderExpanded by remember { mutableStateOf(false) }
     var cardsExpanded by remember { mutableStateOf(false) }
 
-    var expandedItemId by remember { mutableStateOf<Int?>(null) }
+    var expandedItemIndex by remember { mutableStateOf<Int?>(null) }
     var expandedItemPosition by remember { mutableStateOf<Position?>(null) }
+    var expandedCard by remember { mutableStateOf<Card?>(null) }
 
     var set by remember { mutableStateOf<Set?>(null) }
     LaunchedEffect(true) {
         set = setViewModel.getSet(setId)
     }
 
-    Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .nestedScroll(scrollBehavior.nestedScrollConnection)
-            .pointerInput(Unit) {
-                awaitPointerEventScope {
-                    while (true) {
-                        val down = awaitFirstDown(pass = PointerEventPass.Initial)
-                        val downTime = System.currentTimeMillis()
-                        val downPosition = down.position
-
-                        val event = awaitPointerEvent(pass = PointerEventPass.Initial)
-                        val upTime = System.currentTimeMillis()
-
-                        val tapTimeout = viewConfiguration.longPressTimeoutMillis
-
-                        val offset = event.changes[0].position
-                        val isTap = upTime - downTime < tapTimeout &&
-                                event.changes.size == 1 &&
-                                (offset - downPosition).getDistance() < viewConfiguration.touchSlop
-
-                        if (isTap && expandedItemId != null && !clickedOnExpandedItem(
-                                offset,
-                                expandedItemPosition
-                            )
-                        ) {
-                            expandedItemId = null
-                            expandedItemPosition = null
-                            down.consume()
-                            event.changes[0].consume()
-                        }
-                    }
-                }
-            },
-        topBar = {
-            TopAppBar(
-                title = {
-                    BasicTextField(
-                        value = set!!.setName,
-                        onValueChange = { set!!.setName = it }
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigate(Screen.Main.route) }) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = "Return to main screen",
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { showMenu = !showMenu }) {
-                        Icon(
-                            imageVector = Icons.Filled.MoreVert,
-                            contentDescription = "Show options for the edit screen",
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-                    DropdownMenu(
-                        expanded = showMenu,
-                        onDismissRequest = { showMenu = false },
-                        modifier = Modifier
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Import csv") },
-                            onClick = { /*TODO*/ }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Delete") },
-                            onClick = { /*TODO*/ }
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.smallTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                scrollBehavior = scrollBehavior
-            )
-        },
-    ) { innerPadding ->
-        LazyColumn(
+    set?.let {
+        Scaffold(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            displayOrderExpandable(
-                expanded = displayOrderExpanded,
-                onToggle = { displayOrderExpanded = !displayOrderExpanded }
-            )
-            cardsExpandable(
-                expanded = cardsExpanded,
-                expandToggle = { cardsExpanded = !cardsExpanded },
-                expandedItemId = expandedItemId,
-                setExpandedItemId = { itemId: Int? -> expandedItemId = itemId },
-                setExpandedItemPosition = { itemPosition: Position? ->
-                    expandedItemPosition = itemPosition
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
+                .pointerInput(Unit) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val down = awaitFirstDown(pass = PointerEventPass.Initial)
+                            val downTime = System.currentTimeMillis()
+                            val downPosition = down.position
+
+                            val event = awaitPointerEvent(pass = PointerEventPass.Initial)
+                            val upTime = System.currentTimeMillis()
+
+                            val tapTimeout = viewConfiguration.longPressTimeoutMillis
+
+                            val offset = event.changes[0].position
+                            val isTap = upTime - downTime < tapTimeout &&
+                                    event.changes.size == 1 &&
+                                    (offset - downPosition).getDistance() < viewConfiguration.touchSlop
+
+                            if (isTap && expandedItemIndex != null &&
+                                !clickedOnExpandedItem(
+                                    offset,
+                                    expandedItemPosition
+                                )
+                            ) {
+                                set!!.cards[expandedItemIndex!!] = expandedCard!!
+                                expandedCard = null
+                                expandedItemIndex = null
+                                expandedItemPosition = null
+                                down.consume()
+                                event.changes[0].consume()
+                            }
+                        }
+                    }
                 },
-                set = set!!,
-                addCard = { card: Card -> set!!.cards.add(card) }
-            )
+            topBar = {
+                TopAppBar(
+                    title = {
+                        BasicTextField(
+                            value = set!!.setName,
+                            onValueChange = { set!!.setName = it }
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.navigate(Screen.Main.route) }) {
+                            Icon(
+                                imageVector = Icons.Filled.ArrowBack,
+                                contentDescription = "Return to main screen",
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = { showMenu = !showMenu }) {
+                            Icon(
+                                imageVector = Icons.Filled.MoreVert,
+                                contentDescription = "Show options for the edit screen",
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = showMenu,
+                            onDismissRequest = { showMenu = false },
+                            modifier = Modifier
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Import csv") },
+                                onClick = { /*TODO*/ }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Delete") },
+                                onClick = { /*TODO*/ }
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.smallTopAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    scrollBehavior = scrollBehavior
+                )
+            },
+        ) { innerPadding ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+                displayOrderExpandable(
+                    expanded = displayOrderExpanded,
+                    onToggle = { displayOrderExpanded = !displayOrderExpanded }
+                )
+                cardsExpandable(
+                    expanded = cardsExpanded,
+                    expandToggle = { cardsExpanded = !cardsExpanded },
+                    expandedItemIndex = expandedItemIndex,
+                    setExpandedItemIndex = { itemId: Int? -> expandedItemIndex = itemId },
+                    setExpandedItemPosition = { itemPosition: Position? ->
+                        expandedItemPosition = itemPosition
+                    },
+                    set = set!!,
+                    addCard = { card: Card -> set!!.cards.add(card) },
+                    updateCard = { text1: String?, text2: String?, cardImg: String? ->
+                        text1?.let {
+                            expandedCard?.text1 = it
+                        }
+                        text2?.let {
+                            expandedCard?.text2 = it
+                        }
+                        cardImg?.let {
+                            expandedCard?.cardImg = it
+                        }
+                    },
+                    setExpandedCard = { card: Card -> expandedCard = card }
+                )
+            }
         }
     }
 }

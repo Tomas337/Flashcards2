@@ -38,11 +38,13 @@ import tomasdavid.flashcards2.viewmodels.SetViewModel
 fun LazyListScope.cardsExpandable(
     expanded: Boolean,
     expandToggle: () -> Unit,
-    expandedItemId: Int?,
-    setExpandedItemId: (Int?) -> Unit,
+    expandedItemIndex: Int?,
+    setExpandedItemIndex: (Int?) -> Unit,
     setExpandedItemPosition: (Position?) -> Unit,
     set: Set,
-    addCard: (Card) -> Unit
+    addCard: (Card) -> Unit,
+    updateCard: (text1: String?, text2: String?, cardImg: String?) -> Unit,
+    setExpandedCard: (Card) -> Unit
 ) {
     item {
         Row(
@@ -67,14 +69,15 @@ fun LazyListScope.cardsExpandable(
     }
     if (expanded) {
         item {
-            var isAddingCard by remember { mutableStateOf(false) }
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable(
-                        onClick = { isAddingCard = true },
-                        onClickLabel = "Toggle AddCardDialog"
+                        onClick = {
+                            setExpandedItemIndex(set.cards.size)
+                            addCard(Card())
+                        },
+                        onClickLabel = "Add card"
                     ),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -85,31 +88,19 @@ fun LazyListScope.cardsExpandable(
                 )
             }
             Divider()
-
-            if (isAddingCard) {
-                // TODO on click outside display dialog to save (add) card
-                setExpandedItemId(-1)
-                var newCard by remember { mutableStateOf(Card()) }
-
-                CardItem(
-                    cardId = -1,
-                    expandedItemId = -1,
-                    setExpandedItemId = setExpandedItemId,
-                    setExpandedItemPosition = setExpandedItemPosition,
-                    inEditMode = true,
-                    updateCard = { card: Card -> newCard = card }
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-            }
         }
-        items(set.cards.size) {index ->
+        items(set.cards.size) {i ->
+            // reversed order
+            val index = set.cards.size - 1 - i
+
             CardItem(
-                cardId = set.cards[index].id,
-                expandedItemId = expandedItemId,
-                setExpandedItemId = setExpandedItemId,
+                cardIndex = index,
+                expandedItemIndex = expandedItemIndex,
+                setExpandedItemIndex = setExpandedItemIndex,
                 setExpandedItemPosition = setExpandedItemPosition,
-                updateCard = { card: Card -> Unit }
+                card = set.cards[index],
+                updateCard = updateCard,
+                setExpandedCard = setExpandedCard
             )
             Spacer(modifier = Modifier.height(10.dp))
         }

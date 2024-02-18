@@ -50,13 +50,16 @@ import tomasdavid.flashcards2.ui.screens.Card
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CardItem(
-    cardId: Int,
-    expandedItemId: Int?,
-    setExpandedItemId: (Int?) -> Unit,
+    cardIndex: Int,
+    expandedItemIndex: Int?,
+    setExpandedItemIndex: (Int?) -> Unit,
     setExpandedItemPosition: (Position?) -> Unit,
-    inEditMode: Boolean = (cardId == expandedItemId),
-    updateCard: (Card) -> Unit
+    card: Card,
+    updateCard: (text1: String?, text2: String?, cardImg: String?) -> Unit,
+    setExpandedCard: (Card) -> Unit
 ) {
+    val inEditMode = (cardIndex == expandedItemIndex)
+
     val cardItemHeight = if (!inEditMode) {
         70.dp
     } else {
@@ -74,9 +77,11 @@ fun CardItem(
     }
 
     var position by remember { mutableStateOf<Position?>(null) }
-    
-    var text1 by remember { mutableStateOf("Text1") }
-    var text2 by remember { mutableStateOf("Text2") }
+
+    var text1 by remember { mutableStateOf(card.text1) }
+    var text2 by remember { mutableStateOf(card.text2) }
+    text1 = card.text1
+    text2 = card.text2
 
     val focusManager = LocalFocusManager.current
 
@@ -95,14 +100,15 @@ fun CardItem(
                         .round().y
                 )
                 if (inEditMode) {  // update position state on box expansion
+                    setExpandedCard(card)
                     setExpandedItemPosition(position)
                 }
             }
             .clickable(
-                enabled = (expandedItemId == null),
+                enabled = (expandedItemIndex == null),
             ) {
-                if (expandedItemId == null) {
-                    setExpandedItemId(cardId)
+                if (expandedItemIndex == null) {
+                    setExpandedItemIndex(cardIndex)
                     setExpandedItemPosition(position)
                 }
             }
@@ -114,7 +120,7 @@ fun CardItem(
                 .padding(padding)
         ) {
             AsyncImage(
-                model = "file:///android_asset/no-image.1024x1024.png",
+                model = card.cardImg,
                 contentDescription = "Card image",
                 modifier = Modifier
                     .size(cardItemHeight)
@@ -151,7 +157,10 @@ fun CardItem(
                     // TODO switch to BasicTextField to style padding
                     OutlinedTextField(
                         value = text1,
-                        onValueChange = { text1 = it },
+                        onValueChange = {
+                            text1 = it
+                            updateCard(it, null, null)
+                        },
                         textStyle = LocalTextStyle.current.copy(
                             textAlign = TextAlign.Center,
                             fontSize = textSize
@@ -172,7 +181,10 @@ fun CardItem(
                     Divider()
                     OutlinedTextField(
                         value = text2,
-                        onValueChange = { text2 = it },
+                        onValueChange = {
+                            text2 = it
+                            updateCard(null, it, null)
+                        },
                         textStyle = LocalTextStyle.current.copy(
                             textAlign = TextAlign.Center,
                             fontSize = textSize
